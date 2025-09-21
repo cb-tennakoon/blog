@@ -2,7 +2,7 @@
 
 Welcome to the Blog Application! This project is a full-stack blog platform built with a modern and efficient development setup. It leverages the power of Turborepo to manage multiple applications and packages in a single repository, ensuring a streamlined and scalable workflow.
 
-🚀 Key Features
+# 🚀 Key Features
 Monorepo Architecture: Uses Turborepo for a unified build system and dependency management.
 
 Next.js Frontend: A fast and responsive blog interface built with Next.js, featuring server-side rendering for optimal performance and SEO.
@@ -13,7 +13,7 @@ TypeScript: The entire codebase is written in TypeScript, providing type safety 
 
 Reusable Packages: Shared code, such as UI components, database clients, and utility functions, are encapsulated in dedicated packages to promote code reusability.
 
-🛠️ Tech Stack
+# 🛠️ Tech Stack
 Monorepo
 Turborepo - High-performance build system for JavaScript and TypeScript codebases.
 
@@ -31,7 +31,7 @@ TypeScript - A typed superset of JavaScript.
 
 Prisma - A modern database toolkit.
 
-📁 Project Structure
+# 📁 Project Structure
 This monorepo is structured into two main directories: apps and packages.
 
 apps/: This directory contains the runnable applications.
@@ -50,7 +50,7 @@ database: A shared package for the database schema and client.
 
 tsconfig: A shared package for tsconfig.json configurations.
 
-🏁 Getting Started
+# 🏁 Getting Started
 Prerequisites
 You need to have Node.js (v20.x or higher) and npm installed on your machine.
 
@@ -70,7 +70,7 @@ npm run dev
 
 The Next.js frontend will be available at http://localhost:3000 and the NestJS backend at http://localhost:8080.
 
-📜 Available Scripts
+# 📜 Available Scripts
 Each app and package has its own set of scripts, but Turborepo allows you to run them from the root of the monorepo.
 
 npm run dev: Runs the dev script in all projects, starting the web and api servers.
