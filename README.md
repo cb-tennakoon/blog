@@ -1,4 +1,4 @@
-Blog Application
+# Blog Application
 
 Welcome to the Blog Application! This project is a full-stack blog platform built with a modern and efficient development setup. It leverages the power of Turborepo to manage multiple applications and packages in a single repository, ensuring a streamlined and scalable workflow.
 
