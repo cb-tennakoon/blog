@@ -11,20 +11,214 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  posts     Post[]   // This is the missing opposite relation field
+model Role {
+  // Primary key
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  
+  // Required fields
+  name        String @unique @db.VarChar(50)
+  permissions Json   @db.JsonB
+  
+  // Optional fields
+  description String? @db.Text
+  
+  // Timestamp fields
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  
+  // Relations
+  // One role can be assigned to many users
+  users User[]
+  
+  // Additional role metadata
+  isPublic    Boolean @default(false) @map("is_public")
+  isDefault   Boolean @default(false) @map("is_default")
+  level       Float   @default(0)
+
+  // Table mapping
+  @@map("roles")
+  
+  // Indexes
+  @@index([name])
 }
 
+model User {
+  // Primary key
+  userId Int @id @default(autoincrement()) @map("user_id")
+  
+  // Required fields
+  username     String @unique @db.VarChar(50)
+  email        String @unique @db.VarChar(100)
+  passwordHash String @map("password_hash") @db.VarChar(255)
+  
+  // Optional fields
+  firstName String? @map("first_name") @db.VarChar(50)
+  lastName  String? @map("last_name") @db.VarChar(50)
+  bio       String? @db.VarChar(300)
+  avatar    String? @db.VarChar(255) // Avatar URL or file path
+  
+  // Role relationship
+  roleId String? @map("role_id") @db.Uuid
+  role   Role?   @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  
+  // Timestamp fields
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  lastLogin DateTime? @map("last_login") @db.Timestamp(0)
+  
+  // Boolean field
+  isActive Boolean @default(true) @map("is_active")
+  
+  // Relations
+  // One user can upload many media files
+  mediaFiles Media[]
+  
+  // One user can write many comments
+  // comments   Comment[]
+  
+  // One user can have many likes
+  // likes      Like[]
+  
+  // Table mapping
+  @@map("user")
+  
+  // Indexes 
+  @@index([email])
+  @@index([username])
+  @@index([createdAt])
+  @@index([roleId])
+}
+
+// Media model in schema
+model Media {
+  // Primary key
+  mediaId Int @id @default(autoincrement()) @map("media_id")
+  
+  // Foreign key to User
+  uploadedBy Int @map("uploaded_by")
+  
+  // Required fields
+  fileName String @map("file_name") @db.VarChar(255)
+  filePath String @map("file_path") @db.VarChar(500)
+  fileType String @map("file_type") @db.VarChar(50)
+  fileSize Int    @map("file_size")
+  
+  // Optional fields
+  altText String? @map("alt_text") @db.VarChar(255)
+  caption String? @db.Text
+  
+  // Timestamp field
+  uploadedAt DateTime @default(now()) @map("uploaded_at") @db.Timestamp(0)
+  
+  // Relations
+  // Many media files belong to one user
+  user User @relation(fields: [uploadedBy], references: [userId], onDelete: Cascade)
+  
+  // Table mapping
+  @@map("media")
+  
+  // Indexes 
+  @@index([uploadedBy])
+  @@index([fileType])
+  @@index([uploadedAt])
+}
+
+// Author model in Prisma schema - CLEANED UP (removed problematic relations)
+model Author {
+  // Primary key
+  authorId Int @id @default(autoincrement()) @map("author_id")
+  
+  // Optional personal info
+  firstName String? @map("first_name") @db.VarChar(50)
+  lastName  String? @map("last_name") @db.VarChar(50)
+  
+  // Required authentication fields
+  email        String @unique @map("email") @db.VarChar(100)
+  username     String @unique @map("username") @db.VarChar(50)
+  passwordHash String @map("password_hash") @db.VarChar(255)
+  
+  // Optional fields
+  profileImage String? @map("profile_image") @db.VarChar(255)
+  bio          String? @db.Text
+  b            Int?    // Note: This field was in original schema
+  
+  // Timestamp fields
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  
+  // Boolean field
+  isActive Boolean @default(true) @map("is_active")
+  
+  // RELATIONS REMOVED FOR NOW - Add back when you create Blog, Article models
+  // blogs Blog[]
+  // articles Article[]
+  // posts Post[]
+  
+  // Table mapping
+  @@map("author")
+  
+  // Indexes for performance
+  @@index([email])
+  @@index([username])
+  @@index([createdAt])
+}
+
+// Post model in Prisma schema - CLEANED UP (removed problematic relations)
 model Post {
+  // Primary key
+  postId Int @id @default(autoincrement()) @map("post_id")
+  
+  // Foreign keys - REMOVED blogId for now since Blog model doesn't exist
+  // authorId Int @map("author_id")  // REMOVED - Author relation removed
+  // blogId   Int @map("blog_id")    // REMOVED - Blog model doesn't exist
+  
+  // Required content fields
+  title String @db.VarChar(255)
+  slug  String @unique @db.VarChar(255)
+  
+  // Optional content fields
+  content        String? @db.Text  // Changed from LongText to Text for PostgreSQL
+  excerpt        String? @db.Text
+  featuredImage  String? @map("featured_image") @db.VarChar(255)
+  
+  // Status and publishing
+  status      String    @default("draft") @db.VarChar(20)
+  publishedAt DateTime? @map("published_at") @db.Timestamp(0)
+  scheduledAt DateTime? @map("scheduled_at") @db.Timestamp(0)
+  
+  // Timestamp fields
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  
+  // Statistics
+  viewCount Int @default(0) @map("view_count")
+  
+  // Settings
+  allowComments Boolean @default(true) @map("allow_comments")
+  
+  // ALL RELATIONS REMOVED FOR NOW - Add back when you create the related models
+  // author Author @relation(fields: [authorId], references: [authorId], onDelete: Cascade)
+  // blog Blog @relation(fields: [blogId], references: [blogId], onDelete: Cascade)
+  // comments Comment[]
+  // categories PostCategory[]
+  // tags PostTag[]
+  
+  // Table mapping
+  @@map("post")
+  
+  // Indexes for performance - REMOVED problematic indexes
+  // @@index([authorId])
+  // @@index([blogId])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([slug])
+  @@index([createdAt])
+}
+
+//TokenBlacklist
+model TokenBlacklist {
   id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+  token     String   @unique
+  createdAt DateTime @default(now())
+
+  // Table mapping
+  @@map("tokenBlacklist")
 }
