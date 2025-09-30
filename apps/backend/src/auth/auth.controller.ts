@@ -28,7 +28,7 @@ export class AuthController {
   logout(@Request() req) {
     const token = req.headers.authorization?.split(' ')?.[1];
     this.tokenBlacklistService.addToBlacklist(token);
-    console.log("Logged out successfully");
+    console.log('Logged out successfully');
     return { message: 'Logged out successfully' };
   }
 }

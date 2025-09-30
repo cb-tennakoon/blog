@@ -11,7 +11,7 @@ import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { TokenBlacklistService } from './token-blacklist.service';
 @Injectable()
-export class AuthGuard implements CanActivate{
+export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private readonly reflector: Reflector,

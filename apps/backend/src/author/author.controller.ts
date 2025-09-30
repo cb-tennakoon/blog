@@ -7,6 +7,7 @@ import {
   CreateAuthorDto,
 } from './dto/author.dto';
 import { AuthGuard } from 'auth/auth.guard';
+import { Public } from 'auth/public.decorator';
 
 @Controller('author')
 export class AuthorController {
@@ -26,6 +27,7 @@ export class AuthorController {
   }
   //register author
   @Post('register')
+  @Public()
   async create(
     @Body() createAuthorDto: CreateAuthorDto,
   ): Promise<AuthorResponseDto> {
