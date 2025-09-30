@@ -12,7 +12,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       this.configService.get('DATABASE_URL') ? '✓' : '✗',
     );
   }
-  
+
   async onModuleInit() {
     await this.$connect();
   }
@@ -21,8 +21,3 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     await this.$disconnect();
   }
 }
-
-
-
-
-

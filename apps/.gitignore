@@ -3,3 +3,11 @@ node_modules
 .env
 
 /generated/prisma
+node_modules/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+*.log
+dist/
+.next/

@@ -1,9 +1,8 @@
 // This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 
 generator client {
   provider = "prisma-client-js"
-  // Remove the custom output to use default location
 }
 
 datasource db {
@@ -11,20 +10,73 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  posts     Post[]   // This is the missing opposite relation field
+/// Stores roles like "admin" or "editor" for authors.
+model Role {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  authors   Author[]
+
+  @@map("roles")
+  @@index([name])
 }
 
+/// Stores information about users who write posts or upload media.
+model Author {
+  authorId     Int       @id @default(autoincrement()) @map("author_id")
+  username     String    @unique @db.VarChar(50)
+  email        String    @unique @db.VarChar(100)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  firstName    String?   @map("first_name") @db.VarChar(50)
+  lastName     String?   @map("last_name") @db.VarChar(50)
+  roleId       String?   @map("role_id") @db.Uuid
+  role         Role?     @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  posts        Post[]
+  mediaFiles   Media[]
+
+  @@map("author")
+  @@index([email])
+  @@index([username])
+}
+
+/// Stores files like images or videos uploaded by authors.
+model Media {
+  mediaId    Int      @id @default(autoincrement()) @map("media_id")
+  uploadedBy Int      @map("uploaded_by")
+  fileName   String   @map("file_name") @db.VarChar(255)
+  filePath   String   @map("file_path") @db.VarChar(500)
+  fileType   String   @map("file_type") @db.VarChar(50)
+  createdAt  DateTime @default(now()) @map("uploaded_at") @db.Timestamp(0)
+  author     Author   @relation(fields: [uploadedBy], references: [authorId], onDelete: Cascade)
+
+  @@map("media")
+  @@index([uploadedBy])
+}
+
+/// Stores blog posts written by authors.
 model Post {
+  postId      Int       @id @default(autoincrement()) @map("post_id")
+  authorId    Int       @map("author_id")
+  title       String    @db.VarChar(255)
+  slug        String    @unique @db.VarChar(255)
+  content     String?   @db.Text
+  status      String    @default("draft") @db.VarChar(20)
+  publishedAt DateTime? @map("published_at") @db.Timestamp(0)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  author      Author    @relation(fields: [authorId], references: [authorId], onDelete: Cascade)
+
+  @@map("post")
+  @@index([authorId])
+  @@index([status])
+  @@index([slug])
+}
+
+/// Stores invalid tokens to prevent unauthorized access.
+model TokenBlacklist {
   id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+  token     String   @unique
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+
+  @@map("token_blacklist")
 }
