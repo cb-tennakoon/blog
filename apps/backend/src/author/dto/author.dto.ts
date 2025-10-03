@@ -59,6 +59,27 @@ export class AuthorResponseDto {
   @IsDate()
   createdAt: Date;
 }
+export class AuthorProfileDto {
+  @IsInt()
+  authorId: number;
+
+  @IsString()
+  username: string;
+
+  @IsString()
+  email: string;
+
+  @IsString()
+  @IsOptional()
+  firstName: string | null;
+
+  @IsString()
+  @IsOptional()
+  lastName: string | null;
+
+  @IsDate()
+  createdAt: Date;
+}
 export class CreateAuthorDto {
   @IsString()
   username: string;
@@ -84,6 +105,28 @@ export class CreateAuthorDto {
     message: 'roleName must be one of: author, admin, editor',
   })
   roleName?: string;
+}
+export class AuthorUpdateProfileByAuthorDto{
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsOptional()
+  firstName?: string;
+
+  @IsString()
+  @IsOptional()
+  lastName?: string;
+}
+
+export class AuthorProfileDtoForUpdate {
+  authorId: number;
+  username: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  createdAt: Date;
+  role?: { id: string; name: string } | null;
 }
 export class LoginAuthorDto {
   @IsString()

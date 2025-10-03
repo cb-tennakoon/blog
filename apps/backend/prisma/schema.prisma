@@ -32,7 +32,7 @@ model Author {
   roleId       String?   @map("role_id") @db.Uuid
   role         Role?     @relation(fields: [roleId], references: [id], onDelete: SetNull)
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
-  posts        Post[]
+  posts        Posts[]
   mediaFiles   Media[]
 
   @@map("author")
@@ -55,7 +55,7 @@ model Media {
 }
 
 /// Stores blog posts written by authors.
-model Post {
+model Posts {
   postId      Int       @id @default(autoincrement()) @map("post_id")
   authorId    Int       @map("author_id")
   title       String    @db.VarChar(255)
@@ -66,7 +66,7 @@ model Post {
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
   author      Author    @relation(fields: [authorId], references: [authorId], onDelete: Cascade)
 
-  @@map("post")
+  @@map("posts")
   @@index([authorId])
   @@index([status])
   @@index([slug])

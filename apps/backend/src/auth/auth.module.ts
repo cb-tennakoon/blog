@@ -5,19 +5,28 @@ import { AuthorModule } from 'author/author.module';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
-import { TokenBlacklistService } from './token-blacklist.service';
+import { TokenBlacklistModule } from './token-blacklist.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PrismaModule } from 'prisma/prisma.module';
+
 @Module({
-  imports: [AuthorModule],
-  controllers: [AuthController],
-  providers: [
-    AuthService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-    TokenBlacklistService,
-    AuthGuard,
+  imports: [
+    ConfigModule,
+    AuthorModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1h' },
+      }),
+      inject: [ConfigService],
+      global: true,
+    }),
+    PrismaModule,
+    TokenBlacklistModule,
   ],
-  exports: [AuthService, TokenBlacklistService],
+  controllers: [AuthController],
+  providers: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

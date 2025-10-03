@@ -6,7 +6,11 @@ import { PrismaModule } from './prisma/prisma.module';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthorModule } from './author/author.module';
 import { AuthModule } from './auth/auth.module';
-import { JwtModule } from '@nestjs/jwt';
+
+import { PostModule } from './post/post.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from 'auth/auth.guard';
+import { TokenBlacklistModule } from './auth/token-blacklist.module';
 
 @Module({
   imports: [
@@ -17,13 +21,18 @@ import { JwtModule } from '@nestjs/jwt';
     PrismaModule,
     AuthorModule,
     AuthModule,
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' },
-    }),
+    PostModule,
+    TokenBlacklistModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [
+    PrismaService,
+    AppService,
+    AuthGuard,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard, // Use globally
+    },
+  ],
 })
 export class AppModule {}

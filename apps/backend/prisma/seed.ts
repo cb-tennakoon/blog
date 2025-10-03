@@ -9,11 +9,7 @@ async function main() {
   console.log('🌱 Starting database seeding...\n');
 
   // 1. Create roles (e.g., "admin", "author", "user")
-  const roles = [
-    { name: 'user' },
-    { name: 'author' },
-    { name: 'admin' },
-  ];
+  const roles = [{ name: 'user' }, { name: 'author' }, { name: 'admin' }];
 
   console.log('Creating roles...');
   const createdRoles: Role[] = [];
@@ -98,12 +94,17 @@ async function main() {
   console.log('\nCreating posts...');
   const posts = Array.from({ length: 15 }).map(() => {
     const title = faker.lorem.sentence({ min: 3, max: 7 });
-    const publishedAt = faker.helpers.maybe(() => faker.date.recent({ days: 90 }), { probability: 0.7 });
-    
+    const publishedAt = faker.helpers.maybe(
+      () => faker.date.recent({ days: 90 }),
+      { probability: 0.7 },
+    )
     return {
       authorId: faker.helpers.arrayElement(authorIds),
       title: title,
-      slug: faker.helpers.slugify(title).toLowerCase() + '-' + faker.string.alphanumeric(5), // Add random suffix to ensure uniqueness
+      slug:
+        faker.helpers.slugify(title).toLowerCase() +
+        '-' +
+        faker.string.alphanumeric(5), // Add random suffix to ensure uniqueness
       content: faker.lorem.paragraphs({ min: 2, max: 5 }),
       status: faker.helpers.arrayElement(['draft', 'published']),
       publishedAt: publishedAt,
@@ -112,7 +113,7 @@ async function main() {
   });
 
   try {
-    await prisma.post.createMany({
+    await prisma.posts.createMany({
       data: posts,
       skipDuplicates: true, // Skip if duplicate slugs exist
     });

@@ -39,9 +39,13 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Token has been invalidated');
     }
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
+      // const payload = await this.jwtService.verifyAsync(token, {
+      //   secret: process.env.JWT_SECRET,
+      // });
+        const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>('JWT_SECRET'),
       });
+      
       request['user'] = payload;
     } catch {
       throw new UnauthorizedException();
