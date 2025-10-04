@@ -22,3 +22,13 @@ export class CreatePostDto {
   @IsOptional()
   publishedAt?: Date;
 }
+export class PostResponseDto {
+  postId: number;
+  authorId: number;
+  title: string;
+  content: string | null;
+  slug: string;
+  status: string;
+  createdAt: string;
+  publishedAt?: string;
+}

@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { access_token } = response.data;
       setToken(access_token);
       localStorage.setItem('token', access_token);
-      router.push('/dashboard'); // Redirect to dashborad after login
+      router.push('/dashboard/home'); // Redirect to dashborad after login
     } catch (error) {
       throw new Error('Login failed: Invalid credentials');
     }
